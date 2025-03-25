@@ -17,6 +17,7 @@ If I have spare time I might consider making a more universal version, but this 
 # What this doesn't do
 * Handle files that aren't mp4 or lrv
 * Preserve the original media
+* So much other stuff that I haven't listed here
 
 # Usage
-* Clone into your directory with your media. It will recursively process all of the media in the same folder as the MediaHandler folder, the folder above where the script is located.
+* Clone into your directory with your media, then run the script. It will recursively process all of the media in the same folder as the MediaHandler folder, the folder above where the script is located.
