@@ -1,7 +1,8 @@
 # MediaHandler
 Handles the Media I Record for Editing with Davinci Resolve Studio on Linux.
 
-WARNING: THIS IS ALWAYS A WIP, AND DESIGNED FOR MY PERSONAL USE AND WORKFLOW. IF YOU DECIDE TO USE IT, CREATE BACKUPS OF YOUR MEDIA, THIS TOOL IS DESTRUCTIVE.
+**WARNING: THIS IS ALWAYS A WIP, AND DESIGNED FOR MY PERSONAL USE AND WORKFLOW. IF YOU DECIDE TO USE IT, CREATE BACKUPS OF YOUR MEDIA, THIS TOOL COULD BE DESTRUCTIVE.**
+
 If I have spare time I might consider making a more universal version, but this is not that version, I just needed this to work for my workflow.
 
 # What this does
