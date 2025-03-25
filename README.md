@@ -1,5 +1,5 @@
 # MediaHandler
-Handles the Media I Record for Editing with Davinci Resolve Studio on Linux.
+This was originally designed as a tool to convert the AAC audio of MP4 files to WAV, keeping all of the files in their existing directories for organization, but it balloned to the point where it handles that, in addition to all of my Proxy needs.
 
 **WARNING: THIS IS ALWAYS A WIP, AND DESIGNED FOR MY PERSONAL USE AND WORKFLOW. IF YOU DECIDE TO USE IT, CREATE BACKUPS OF YOUR MEDIA, THIS TOOL COULD BE DESTRUCTIVE.**
 
