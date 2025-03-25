@@ -1,0 +1,175 @@
+#!/bin/bash
+
+ZENITY=true
+
+# Get the list of MP4 files, handling spaces
+mapfile -d '' MEDIA_FILES < <(find . -type f \( -iname "*.mp4" -o -iname "*.lrv" \) -print0)
+TOTAL_FILES=${#MEDIA_FILES[@]}
+PROCESSED=0
+TOTAL_TIME=0
+
+# Check if zenity is installed
+if ! command -v zenity &> /dev/null; then
+    # Zenity isn't installed, prompt user to continue
+    notify-send "ZENITY NOT FOUND" "Proceeding with built in notifications. Install Zenity for better Progress indicator."
+    ZENITY=false
+    notify-send "Adding Audio Tracks" "Processing... $PROCESSED of $TOTAL_FILES files"
+fi
+echo
+echo "INFO: Remaining Time is based on the average time taken for each video file and therefore won't be terribly accurate unless videos are a consistent length and format."
+echo
+# Create a temporary FIFO file for progress updates
+PIPE=$(mktemp -u)
+mkfifo "$PIPE"
+exec 3<> "$PIPE"
+rm "$PIPE"
+
+if [ "$ZENITY" = true ]; then
+    # Start the progress dialog in the background
+    ( zenity --progress --title="MP4 & LRV WAV Audio Track Adder" \
+        --text="Processed $PROCESSED of $TOTAL_FILES files" --percentage=0 --cancel-label="Stop" <&3 ) &
+    ZENITY_PID=$!
+fi
+# Function to update the progress bar with ETA
+update_progress() {
+    PERCENT=$(( (PROCESSED * 100) / TOTAL_FILES ))
+
+    if (( PROCESSED > 0 )); then
+        AVG_TIME=$(bc <<< "scale=2; $TOTAL_TIME / $PROCESSED")  # Average seconds per file
+        REMAINING_FILES=$(( TOTAL_FILES - PROCESSED ))
+        ETA_SECONDS=$(bc <<< "scale=0; $AVG_TIME * $REMAINING_FILES")  # Total remaining seconds
+        ETA=$(date -ud "@$ETA_SECONDS" +'%M:%S')  # Convert seconds to MM:SS format
+    else
+        ETA="Calculating..."
+    fi
+
+    NOTIFICATION_STRING="Processing $INPUT_VIDEO\nProcessed $PROCESSED of $TOTAL_FILES files (Remaining: $ETA)"
+    echo "$NOTIFICATION_STRING"
+    if [ "$ZENITY" = true ]; then
+        echo "# $NOTIFICATION_STRING" >&3
+        echo "$PERCENT" >&3
+    else
+        notify-send "Handling Media" "$NOTIFICATION_STRING"
+    fi
+}
+
+# Process each MP4 file
+for INPUT_VIDEO in "${MEDIA_FILES[@]}"; do
+    echo "Processing: $INPUT_VIDEO"
+
+    echo "Checking if this is a raw 360 file"
+    if [[ "$INPUT_VIDEO" == *"/360 X4/Raw/"* ]]; then
+        echo "Skipping (Raw 360 File): $INPUT_VIDEO"
+        ((PROCESSED++))
+        update_progress
+        continue
+    fi
+
+    echo "Checking if the video already has audio in the correct format."
+    if ffprobe -i "$INPUT_VIDEO" -show_streams -select_streams a -loglevel error | grep -q "pcm_s16le"; then
+        echo "Skipping (WAV track already exists): $INPUT_VIDEO"
+        ((PROCESSED++))
+        update_progress
+        continue
+    fi
+
+    echo "Checking if the video has no audio"
+    if ! ffprobe -i "$INPUT_VIDEO" -show_streams -select_streams a -loglevel error | grep -q "audio"; then
+        echo "Creating Proxy Media for Footage with no Audio: $INPUT_VIDEO"
+        PROXY_DIR="$(dirname "$INPUT_VIDEO")/Proxies"
+        mkdir -p "$PROXY_DIR"
+        NEW_FILENAME="$(basename "${INPUT_VIDEO%.*}.mov")"
+        if [ -f "$PROXY_DIR/$NEW_FILENAME" ]; then
+            echo "Proxy already exists for $INPUT_VIDEO, skipping."
+            ((PROCESSED++))
+            update_progress
+            continue
+        fi
+
+        START_TIME=$(date +%s)  # Record start time
+
+        ffmpeg -i "$INPUT_VIDEO" -c:v prores_ks -profile:v 3 -vf "scale=1280:-2" -an "$PROXY_DIR/$NEW_FILENAME"
+
+        END_TIME=$(date +%s)  # Record end time
+        TIME_TAKEN=$((END_TIME - START_TIME))
+        TOTAL_TIME=$((TOTAL_TIME + TIME_TAKEN))  # Add to total processing time
+        ((PROCESSED++))
+        update_progress
+        continue
+    fi
+
+    echo "Handling lrv file"
+    if [[ "$INPUT_VIDEO" == *.lrv ]]; then
+        # Dynamically generate the proxy directory path
+        PROXY_DIR="$(dirname "$INPUT_VIDEO")/Proxies"
+        echo "Creating Proxy Directory if it Doesn't Exist: $PROXY_DIR"
+        mkdir -p "$PROXY_DIR"  # Ensure the proxy directory exists
+        NEW_FILENAME="$(basename "${INPUT_VIDEO%.*}.mov" | sed 's/LRV/VID/')"
+        echo "Moving Proxy Media $INPUT_VIDEO to $PROXY_DIR/$NEW_FILENAME"
+        mv "$INPUT_VIDEO" "$PROXY_DIR/$NEW_FILENAME"
+
+        ((PROCESSED++))
+        update_progress
+        continue
+    fi
+    TEMP_FILE="${INPUT_VIDEO%.*}_temp.mp4"
+    START_TIME=$(date +%s)  # Record start time
+    AAC_AUDIO="${INPUT_VIDEO%.*}.aac"
+    WAV_AUDIO="${INPUT_VIDEO%.*}.wav"
+
+    echo "Extracting AAC audio of $INPUT_VIDEO to $AAC_AUDIO"
+    # Extract AAC audio
+    ffmpeg -y -i "$INPUT_VIDEO" -vn -acodec copy "$AAC_AUDIO"
+
+    echo Converting AAC to WAV
+    # Convert AAC to PCM WAV
+    ffmpeg -y -i "$AAC_AUDIO" -acodec pcm_s16le -ar 48000 -ac 2 "$WAV_AUDIO"
+
+    echo Replacing AAC with WAV
+    # Mux new audio track into the original video, keeping both audio tracks
+    ffmpeg -y -i "$INPUT_VIDEO" -i "$WAV_AUDIO" -c:v copy -map 0:v:0 -map 1:a:0 -c:a pcm_s16le -metadata:s:a:0 language=eng "$TEMP_FILE"
+
+    echo replacing the original file
+    # Replace the original file with the new version
+    mv "$TEMP_FILE" "$INPUT_VIDEO"
+
+    echo cleaning up temp files
+    # Cleanup temporary files
+    rm "$AAC_AUDIO" "$WAV_AUDIO"
+
+    if [[ "$INPUT_VIDEO" == *"/360/"* ]]; then
+        echo "Creating Proxy for 360 Video"
+        PROXY_DIR="$(dirname "$INPUT_VIDEO")/Proxies"
+        mkdir -p "$PROXY_DIR"
+        NEW_FILENAME="$(basename "${INPUT_VIDEO%.*}.mov")"
+        ffmpeg -i "$INPUT_VIDEO" -c:v prores_ks -profile:v 3 -vf "scale=1280:-2" -an "$PROXY_DIR/$NEW_FILENAME"
+    fi
+
+    END_TIME=$(date +%s)  # Record end time
+    TIME_TAKEN=$((END_TIME - START_TIME))
+    TOTAL_TIME=$((TOTAL_TIME + TIME_TAKEN))  # Add to total processing time
+
+    ((PROCESSED++))
+    update_progress
+    echo "Finished processing: $INPUT_VIDEO"
+
+    # Check for cancel after completing each file
+    if [ "$ZENITY" = true ]; then
+        if ! kill -0 "$ZENITY_PID" 2>/dev/null; then
+            echo "Process cancelled during file $INPUT_VIDEO. Exiting..."
+            exec 3>&-  # Close progress file descriptor
+            exit 0
+        fi
+    fi
+done
+
+echo "All files processed! 🎉"
+# Show final notification when all files are processed
+if [ $ZENITY = "false" ]; then
+    # If Zenity is not used, use notify-send
+    notify-send "Process Complete 🎉" "All MP4 files processed! 🎉"
+else
+    # If Zenity is used, show final message in Zenity window
+    echo "# All MP4 files have been processed! 🎉" >&3
+    echo "100" >&3
+fi
