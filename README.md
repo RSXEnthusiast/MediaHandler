@@ -1,6 +1,6 @@
 # MediaHandler
 ## Overview
-This project converts the audio from AAC to WAV and generates DNXHR_SQ 720p proxies for all MP4 files in a directory recursively.
+This project converts the audio from AAC to WAV (required for editing with Davinci Resolve Studio on Linux) and generates DNXHR_SQ 720p proxies for all MP4 files in a directory recursively.
 
 **WARNING: THIS IS ALWAYS A WIP, AND DESIGNED FOR MY PERSONAL USE AND WORKFLOW. IF YOU DECIDE TO USE IT, CREATE BACKUPS OF YOUR MEDIA, THIS TOOL COULD BE DESTRUCTIVE.**
 
@@ -13,11 +13,6 @@ If I have spare time I might consider making a more universal version, but this 
 * Generates Proxies for media and places them in ./Proxy
 * If cancelled, finishes current media before exiting.
     * It is not suggested to force quit the script, it could result in lost media.
-
-## Dependencies
-* Zenity
-    * `sudo apt install zenity`
-    * This is for a prettier notification window. It could be stripped from the tool pretty easily if desired.
 
 ## What this doesn't do
 * Handle files that aren't mp4
@@ -33,6 +28,11 @@ If I have spare time I might consider making a more universal version, but this 
    * Walk your dog
    * Edit the video for you
    * Repair your personal relationships
+
+## Dependencies
+* Zenity
+    * `sudo apt install zenity` for ubuntu based distros
+    * This is for a prettier notification window. It could be stripped from the tool pretty easily if desired.
 
 ## Usage
 * Clone into your directory with your media, then run the script. It will recursively process all of the media in the same folder as the MediaHandler folder, `../*` from the script, aka the folder above where the script is located.
