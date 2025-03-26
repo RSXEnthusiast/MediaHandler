@@ -21,6 +21,7 @@ If I have spare time I might consider making a more universal version, but this 
 
 # What this doesn't do
 * Handle files that aren't mp4 or lrv
+   * Could probably easily be modified to handle other media types, but this is all I need, so it's all the tool searches for.
 * Preserve the original media
 * So much other stuff that I haven't listed here
 
