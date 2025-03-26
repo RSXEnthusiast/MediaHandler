@@ -55,9 +55,9 @@ for INPUT_VIDEO in "${MEDIA_FILES[@]}"; do
         echo "Skipping (Raw 360 File): $INPUT_VIDEO"
     else
         echo "Handling Audio Transcoding, if needed."
-        if ! ffprobe -i "$INPUT_VIDEO" -show_streams -select_streams a -loglevel error | grep -q "audio" > /dev/null; then
+        if ! ffprobe -i "$INPUT_VIDEO" -show_streams -select_streams a -loglevel error | grep -q "audio"; then
             echo "File has no audio. Skipping audio transcoding."
-        elif ffprobe -i "$INPUT_VIDEO" -show_streams -select_streams a -loglevel error | grep -q "pcm_s16le" > /dev/null; then
+        elif ffprobe -i "$INPUT_VIDEO" -show_streams -select_streams a -loglevel error | grep -q "pcm_s16le"; then
             echo "File already has WAV audio. Skipping audio transcoding."
         else
             echo "Converting audio of $INPUT_VIDEO to WAV"
