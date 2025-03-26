@@ -7,7 +7,7 @@ This was originally designed as a tool to convert the AAC audio of MP4 files to 
 If I have spare time I might consider making a more universal version, but this is not that version, I just needed this to work for my workflow.
 
 ## What this does
-* Recursively searches for mp4 and lrv files in a given directory, preserving the directory structure
+* Recursively searches for mp4 and lrv files in a given directory, preserving the directory structure as it modifies the files
     * No need to put all of your input files into one directory for handling
 * Replaces AAC audio in MP4 (H.264) files with WAV
 * Moves .lrv files to ./Proxies and changes the extension to .mov
@@ -27,6 +27,10 @@ If I have spare time I might consider making a more universal version, but this 
    * The video should be preserved at original quality
    * The Audio track will be overwritten by the new WAV audio track
       * This should be a lossless conversion, unless I misunderstood or missed something
+* Run automatically when detecting new media
+   * You could set this cron job up, but I would not suggest it and haven't tested it.
+   * It's intended to be run after dumping footage from cameras and organizing it into directories.
+      * This will ensure that media's associated LRV files exist.
 * So much other stuff that I haven't listed here
    * Walk your dog
    * Edit the video for you
