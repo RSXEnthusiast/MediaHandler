@@ -45,6 +45,7 @@ If I have spare time I might consider making a more universal version, but this 
 
 ## Planned Features
 **If there's something you'd like implemented that isn't listed here please suggest it or make a PR**
+* Better ETA based on file size instead of file count
 * Replace Hard-Coded things with parameters
    * Folder to Scan
       * --folder
