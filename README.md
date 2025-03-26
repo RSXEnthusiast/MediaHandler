@@ -23,7 +23,18 @@ If I have spare time I might consider making a more universal version, but this 
 * Handle files that aren't mp4 or lrv
    * Could probably easily be modified to handle other media types, but this is all I need, so it's all the tool searches for.
 * Preserve the original media
+   * The video should be preserved at original quality
+   * The Audio track will be overwritten by the new WAV audio track
+      * This should be a lossless conversion, unless I misunderstood or missed something
 * So much other stuff that I haven't listed here
+   * Walk your dog
+   * Edit the video for you
+   * Repair your personal relationships
 
 # Usage
-* Clone into your directory with your media, then run the script. It will recursively process all of the media in the same folder as the MediaHandler folder, the folder above where the script is located.
+* Clone into your directory with your media, then run the script. It will recursively process all of the media in the same folder as the MediaHandler folder, `../*` from the script, aka the folder above where the script is located.
+* Eg.
+   * I have a project directory called PROJECT containing four folders, each containing media for a specific camera angle. PROJECT is in a foldernamed VIDEO_PROJECTS
+   * I'd clone into the VIDEO_PROJECTS folder, so VIDEO_PROJECTS would contain the folders PROJECT and MediaHandler.
+   * The script would recursively scan for all media in the VIDEO_PROJECTS folder.
+   * If you only wanted to convert media in the PROJECT folder, instead of all media in the VIDEO_PROJECTS folder, you'd need to clone into the PROJECT folder instead.
