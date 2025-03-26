@@ -30,6 +30,9 @@ If I have spare time I might consider making a more universal version, but this 
    * Repair your personal relationships
 
 ## Dependencies
+* ffmpeg
+   * `sudo apt install ffmpeg`
+   * duh
 * Zenity
     * `sudo apt install zenity` for ubuntu based distros
     * This is for a prettier notification window. It could be stripped from the tool pretty easily if desired.
