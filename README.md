@@ -1,6 +1,6 @@
 # MediaHandler
 ## Overview
-This project converts the audio from AAC to WAV (required for editing with Davinci Resolve Studio on Linux) and generates DNXHR_SQ 720p proxies for all MP4 files in a directory recursively.
+This project converts audio from AAC to WAV (required for editing with Davinci Resolve Studio on Linux) and generates DNXHR_SQ 720p proxies for all MP4 files in a directory, scanned recursively.
 
 **WARNING: THIS IS ALWAYS A WIP, AND DESIGNED FOR MY PERSONAL USE AND WORKFLOW. IF YOU DECIDE TO USE IT, CREATE BACKUPS OF YOUR MEDIA, THIS TOOL COULD BE DESTRUCTIVE.**
 
