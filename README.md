@@ -22,8 +22,8 @@ If I have spare time I might consider making a more universal version, but this 
    * The Audio track will be overwritten by the new WAV audio track
       * This should be a lossless conversion, unless I messed up my ffmpeg command
 * Run automatically when detecting new media
-   * You could set this cron job up, but I would not suggest it and haven't tested it.
-   * It's intended to be run after dumping footage from cameras and organizing it into directories.
+   * You could set this sort of automatic folder scanning job up, but I would not suggest it and haven't tested it.
+   * It's intended to be run manually after dumping footage from cameras and organizing it into directories.
 * So much other stuff that I haven't listed here
    * Walk your dog
    * Edit the video for you
@@ -41,3 +41,25 @@ If I have spare time I might consider making a more universal version, but this 
    * I'd clone into the VIDEO_PROJECTS folder, so VIDEO_PROJECTS would contain the folders PROJECT and MediaHandler.
    * The script would recursively scan for all media in the VIDEO_PROJECTS folder.
    * If you only wanted to convert media in the PROJECT folder, instead of all media in the VIDEO_PROJECTS folder, you'd need to clone into the PROJECT folder instead.
+* The above example might change with the addition of parameters, as outlined below.
+
+## Planned Features
+**If there's something you'd like implemented that isn't listed here please suggest it or make a PR**
+* Replace Hard-Coded things with parameters
+   * Folder to Scan
+      * --folder
+      * -f
+      * eg `-f "~/videos/youtube"`
+   * Proxy Output Resolution
+      * --proxyResolution
+      * -p
+      * eg `-p 720`
+   * Enable/Disable Proxy generation
+      * --generateProxies
+      * -g
+      * eg `-g true`
+   * Exclude file paths matching regex
+      * --excludeMatching
+      * -e
+      * eg `-e "*/360 X4/Raw/*"`
+* Add examples of usage with parameters, including a runner script.
