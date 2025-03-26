@@ -48,7 +48,7 @@ update_progress() {
 for INPUT_VIDEO in "${MEDIA_FILES[@]}"; do
     echo "Processing: $INPUT_VIDEO"
 
-    echo "Checking if this is a raw 360 file"
+    echo Checking if this is a raw 360 file
     if [[ "$INPUT_VIDEO" == *"/360 X4/Raw/"* ]]; then
         echo "Skipping (Raw 360 File): $INPUT_VIDEO"
         ((PROCESSED++))
@@ -64,7 +64,7 @@ for INPUT_VIDEO in "${MEDIA_FILES[@]}"; do
         continue
     fi
 
-    echo "Checking if the video has no audio"
+    echo Checking if the video has no audio
     if ! ffprobe -i "$INPUT_VIDEO" -show_streams -select_streams a -loglevel error | grep -q "audio"; then
         echo "Creating Proxy Media for Footage with no Audio: $INPUT_VIDEO"
         PROXY_DIR="$(dirname "$INPUT_VIDEO")/Proxies"
@@ -79,18 +79,25 @@ for INPUT_VIDEO in "${MEDIA_FILES[@]}"; do
 
         START_TIME=$(date +%s)
 
-        ffmpeg -i "$INPUT_VIDEO" -c:v prores_ks -profile:v 3 -vf "scale=1280:-2" -an "$PROXY_DIR/$NEW_FILENAME"
+        ffmpeg -y -i "$INPUT_VIDEO" -c:v dnxhr -profile:v dnxhr_sq -vf scale=-1:720,format=yuv422p -an "$PROXY_DIR/$NEW_FILENAME"
 
         END_TIME=$(date +%s)
         TIME_TAKEN=$((END_TIME - START_TIME))
         TOTAL_TIME=$((TOTAL_TIME + TIME_TAKEN))
         ((PROCESSED++))
         update_progress
+
+        if ! kill -0 "$ZENITY_PID" 2>/dev/null; then
+            echo "Process cancelled during file $INPUT_VIDEO. Exiting..."
+            exec 3>&-
+            exit 0
+        fi
         continue
     fi
 
-    echo "Handling lrv file"
+    echo Checking if this is an LRV file
     if [[ "$INPUT_VIDEO" == *.lrv ]]; then
+        echo Handling LRV file
         PROXY_DIR="$(dirname "$INPUT_VIDEO")/Proxies"
         echo "Creating Proxy Directory if it Doesn't Exist: $PROXY_DIR"
         mkdir -p "$PROXY_DIR"
@@ -100,34 +107,28 @@ for INPUT_VIDEO in "${MEDIA_FILES[@]}"; do
 
         ((PROCESSED++))
         update_progress
+
+        if ! kill -0 "$ZENITY_PID" 2>/dev/null; then
+            echo "Process cancelled during file $INPUT_VIDEO. Exiting..."
+            exec 3>&-
+            exit 0
+        fi
         continue
     fi
     TEMP_FILE="${INPUT_VIDEO%.*}_temp.mp4"
     START_TIME=$(date +%s)
-    AAC_AUDIO="${INPUT_VIDEO%.*}.aac"
-    WAV_AUDIO="${INPUT_VIDEO%.*}.wav"
 
-    echo "Extracting AAC audio of $INPUT_VIDEO to $AAC_AUDIO"
-    ffmpeg -y -i "$INPUT_VIDEO" -vn -acodec copy "$AAC_AUDIO"
-
-    echo Converting AAC to WAV
-    ffmpeg -y -i "$AAC_AUDIO" -acodec pcm_s16le -ar 48000 -ac 2 "$WAV_AUDIO"
-
-    echo Replacing AAC with WAV
-    ffmpeg -y -i "$INPUT_VIDEO" -i "$WAV_AUDIO" -c:v copy -map 0:v:0 -map 1:a:0 -c:a pcm_s16le -metadata:s:a:0 language=eng "$TEMP_FILE"
+    ffmpeg -y -i "$INPUT_VIDEO" -map 0:v -map 0:a -c:v copy -c:a pcm_s16le -metadata:s:a:0 language=eng "$TEMP_FILE"
 
     echo replacing the original file
     mv "$TEMP_FILE" "$INPUT_VIDEO"
-
-    echo cleaning up temp files
-    rm "$AAC_AUDIO" "$WAV_AUDIO"
 
     if [[ "$INPUT_VIDEO" == *"/360/"* ]]; then
         echo "Creating Proxy for 360 Video"
         PROXY_DIR="$(dirname "$INPUT_VIDEO")/Proxies"
         mkdir -p "$PROXY_DIR"
         NEW_FILENAME="$(basename "${INPUT_VIDEO%.*}.mov")"
-        ffmpeg -i "$INPUT_VIDEO" -c:v prores_ks -profile:v 3 -vf "scale=1280:-2" -an "$PROXY_DIR/$NEW_FILENAME"
+        ffmpeg -y -i "$INPUT_VIDEO" -c:v dnxhr -profile:v dnxhr_sq -vf scale=-1:720,format=yuv422p -an "$PROXY_DIR/$NEW_FILENAME"
     fi
 
     END_TIME=$(date +%s)
@@ -138,19 +139,13 @@ for INPUT_VIDEO in "${MEDIA_FILES[@]}"; do
     update_progress
     echo "Finished processing: $INPUT_VIDEO"
 
-    if [ "$ZENITY" = true ]; then
-        if ! kill -0 "$ZENITY_PID" 2>/dev/null; then
-            echo "Process cancelled during file $INPUT_VIDEO. Exiting..."
-            exec 3>&-
-            exit 0
-        fi
+    if ! kill -0 "$ZENITY_PID" 2>/dev/null; then
+        echo "Process cancelled during file $INPUT_VIDEO. Exiting..."
+        exec 3>&-
+        exit 0
     fi
 done
 
 echo "All files processed! 🎉"
-if [ $ZENITY = "false" ]; then
-    notify-send "Process Complete 🎉" "All MP4 files processed! 🎉"
-else
-    echo "# All MP4 files have been processed! 🎉" >&3
-    echo "100" >&3
-fi
+echo "# All MP4 files have been processed! 🎉" >&3
+echo "100" >&3
