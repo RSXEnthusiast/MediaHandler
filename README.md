@@ -26,7 +26,7 @@ If I have spare time I might consider making a more universal version, but this 
 * Preserve the original media
    * The video should be preserved at original quality
    * The Audio track will be overwritten by the new WAV audio track
-      * This should be a lossless conversion, unless I misunderstood or missed something
+      * This should be a lossless conversion, unless I messed up my ffmpeg command
 * Run automatically when detecting new media
    * You could set this cron job up, but I would not suggest it and haven't tested it.
    * It's intended to be run after dumping footage from cameras and organizing it into directories.
