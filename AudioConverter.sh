@@ -14,6 +14,7 @@ echo "Found $TOTAL_FILES files."
 PROCESSED=0
 TOTAL_TIME=0
 
+# TODO: FIX THIS | SEE README
 echo "WARNING: Remaining Time is based on the average time taken for each video file and therefore won't be terribly accurate unless videos are a consistent length and format."
 
 echo Initializing Zenity
@@ -22,7 +23,7 @@ mkfifo "$PIPE"
 exec 3<> "$PIPE"
 rm "$PIPE"
 
-( zenity --progress --title="" \
+( zenity --progress --title="MediaHandler | Processing Media" \
     --text="Processed $PROCESSED of $TOTAL_FILES files" --percentage=0 --cancel-label="Stop" <&3 ) &
 ZENITY_PID=$!
 
@@ -32,13 +33,23 @@ update_progress() {
     if (( PROCESSED > 0 )); then
         AVG_TIME=$(bc <<< "scale=2; $TOTAL_TIME / $PROCESSED")
         REMAINING_FILES=$(( TOTAL_FILES - PROCESSED ))
-        ETA_SECONDS=$(bc <<< "scale=0; $AVG_TIME * $REMAINING_FILES")
-        ETA=$(date -ud "@$ETA_SECONDS" +'%M:%S')
+        ETA_SECONDS=$(bc <<< "$AVG_TIME * $REMAINING_FILES")
+        ETA_SECONDS=$(printf "%.0f" "$ETA_SECONDS")  # Round to nearest int
+
+        HOURS=$((ETA_SECONDS / 3600))
+        MINUTES=$(((ETA_SECONDS % 3600) / 60))
+        SECONDS=$((ETA_SECONDS % 60))
+
+        if (( HOURS > 0 )); then
+            ETA=$(printf "%d:%02d:%02d" "$HOURS" "$MINUTES" "$SECONDS")
+        else
+            ETA=$(printf "%02d:%02d" "$MINUTES" "$SECONDS")
+        fi
     else
         ETA="Calculating..."
     fi
 
-    NOTIFICATION_STRING="Processing $INPUT_VIDEO\nProcessed $PROCESSED of $TOTAL_FILES files (Remaining: $ETA)"
+    NOTIFICATION_STRING="Processing $INPUT_VIDEO\n\nProcessed $PROCESSED of $TOTAL_FILES files (Remaining: $ETA)"
     echo "# $NOTIFICATION_STRING" >&3
     echo "$PERCENT" >&3
 }
@@ -49,6 +60,8 @@ for INPUT_VIDEO in "${MEDIA_FILES[@]}"; do
     START_TIME=$(date +%s)
 
     echo "Processing: $INPUT_VIDEO"
+
+    update_progress
 
     echo "Making sure this isn't a raw 360 file."
     if [[ "$INPUT_VIDEO" == *"/360 X4/Raw/"* ]]; then
@@ -87,8 +100,7 @@ for INPUT_VIDEO in "${MEDIA_FILES[@]}"; do
     TOTAL_TIME=$((TOTAL_TIME + TIME_TAKEN))
 
     ((PROCESSED++))
-    update_progress
-    echo "Finished: $INPUT_VIDEO"
+    echo "Finished with: $INPUT_VIDEO"
 
     echo "Checking if zenity progress window was closed"
     if ! kill -0 "$ZENITY_PID" 2>/dev/null; then
