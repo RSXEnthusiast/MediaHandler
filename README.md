@@ -4,8 +4,6 @@ This project converts audio from AAC to WAV (required for editing with Davinci R
 
 **WARNING: THIS IS ALWAYS A WIP, AND DESIGNED FOR MY PERSONAL USE AND WORKFLOW. IF YOU DECIDE TO USE IT, CREATE BACKUPS OF YOUR MEDIA, THIS TOOL COULD BE DESTRUCTIVE.**
 
-If I have spare time I might consider making a more universal version, but this is not that version, I just needed this to work for my workflow.
-
 ## What this does
 * Recursively searches for mp4 files in a given directory, preserving the directory structure as it modifies the files
     * No need to put all of your input files into one directory for handling, keep your media organized into folders as you desire.
@@ -21,7 +19,7 @@ If I have spare time I might consider making a more universal version, but this 
    * The video track should be preserved at original quality
    * The Audio track will be overwritten by the new WAV audio track
       * This should be a lossless conversion, unless I messed up my ffmpeg command
-* Run automatically when detecting new media
+* Run automatically when detecting new media in a folder
    * You could set this sort of automatic folder scanning job up, but I would not suggest it and haven't tested it.
    * It's intended to be run manually after dumping footage from cameras and organizing it into directories.
 * So much other stuff that I haven't listed here
@@ -31,24 +29,25 @@ If I have spare time I might consider making a more universal version, but this 
 
 ## Dependencies
 * ffmpeg
-   * `sudo apt install ffmpeg`
    * Do I need to explain this?
 * Zenity
-    * `sudo apt install zenity` for ubuntu based distros
     * This is for a prettier notification window. It could be stripped from the tool pretty easily if desired.
 
 ## Parameters
-* `-d` `--directory` The directory to recursively scan for files.
+* `-d` `--directory` REQUIRED - The directory to recursively scan for files.
     * Follow this with the directory you'd like to process (see examples)
     * Will scan all files in this directory and any sub directories.
-* `-a` `--audio` Transcodes audio from AAC to WAV for all of the found files.
-* `-p` `--proxies` Generates proxies for all of the found files.
-* `-r` `--proxy_resolution` DEFAULT 540
+* `-a` `--audio` OPTIONAL - Transcodes audio from AAC to WAV for all of the found files.
+* `-p` `--proxies` OPTIONAL - Generates proxies for all of the found files.
+* `-r` `--proxy_resolution` OPTIONAL - Defaults to 540
     * Sets the horizontal resolution to scale the proxies to.
     * Vertical resolution is automatically scaled to keep aspect ratio
+* NOTE: Proxy Generation and Audio Transcoding WILL be handled in the order they're passed in.
+    * E.g. if you pass in `-a -p` audio transcoding will happen for all files, then proxy generation will happen for all files.
+    * E.g. if you pass in `-p -a` proxy generation will happen for all files, then audio trandcoding will happen for all files.
 
 ## Examples
-* These can be found in the Example_ files
+* These can be found in the Example folder
 
 ## Planned Features
 **If there's something you'd like implemented that isn't listed here please suggest it or make a PR**
