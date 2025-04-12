@@ -4,8 +4,6 @@ This project converts audio from AAC to WAV (required for editing with Davinci R
 
 **WARNING: THIS IS ALWAYS A WIP, AND DESIGNED FOR MY PERSONAL USE AND WORKFLOW. IF YOU DECIDE TO USE IT, CREATE BACKUPS OF YOUR MEDIA, THIS TOOL COULD BE DESTRUCTIVE.**
 
-If I have spare time I might consider making a more universal version, but this is not that version, I just needed this to work for my workflow.
-
 ## What this does
 * Recursively searches for mp4 files in a given directory, preserving the directory structure as it modifies the files
     * No need to put all of your input files into one directory for handling, keep your media organized into folders as you desire.
@@ -21,7 +19,7 @@ If I have spare time I might consider making a more universal version, but this 
    * The video track should be preserved at original quality
    * The Audio track will be overwritten by the new WAV audio track
       * This should be a lossless conversion, unless I messed up my ffmpeg command
-* Run automatically when detecting new media
+* Run automatically when detecting new media in a folder
    * You could set this sort of automatic folder scanning job up, but I would not suggest it and haven't tested it.
    * It's intended to be run manually after dumping footage from cameras and organizing it into directories.
 * So much other stuff that I haven't listed here
@@ -31,10 +29,8 @@ If I have spare time I might consider making a more universal version, but this 
 
 ## Dependencies
 * ffmpeg
-   * `sudo apt install ffmpeg`
    * Do I need to explain this?
 * Zenity
-    * `sudo apt install zenity` for ubuntu based distros
     * This is for a prettier notification window. It could be stripped from the tool pretty easily if desired.
 
 ## Parameters
