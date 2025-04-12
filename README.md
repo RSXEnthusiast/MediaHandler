@@ -42,9 +42,12 @@ This project converts audio from AAC to WAV (required for editing with Davinci R
 * `-r` `--proxy_resolution` OPTIONAL - Defaults to 540
     * Sets the horizontal resolution to scale the proxies to.
     * Vertical resolution is automatically scaled to keep aspect ratio
+* NOTE: Proxy Generation and Audio Transcoding WILL be handled in the order they're passed in.
+    * E.g. if you pass in `-a -p` audio transcoding will happen for all files, then proxy generation will happen for all files.
+    * E.g. if you pass in `-p -a` proxy generation will happen for all files, then audio trandcoding will happen for all files.
 
 ## Examples
-* These can be found in the Example_ files
+* These can be found in the Example folder
 
 ## Planned Features
 **If there's something you'd like implemented that isn't listed here please suggest it or make a PR**
