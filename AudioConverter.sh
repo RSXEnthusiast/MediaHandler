@@ -71,17 +71,23 @@ echo "WARNING: Remaining Time is based on the average time taken for each video 
 
 reset_progress() {
     TOTAL_FILES=${#MEDIA_FILES[@]}
+    TOTAL_SIZE=0
+    for INPUT_VIDEO in "${MEDIA_FILES[@]}"; do
+        FILE_SIZE=$(stat --format="%s" "$INPUT_VIDEO")
+        TOTAL_SIZE=$((TOTAL_SIZE + FILE_SIZE))
+    done
     PROCESSED=0
+    PROCESSED_SIZE=0
     TOTAL_TIME=0
 }
 
 update_progress() {
-    PERCENT=$(( (PROCESSED * 100) / TOTAL_FILES ))
+    PERCENT=$(( (PROCESSED_SIZE * 100) / TOTAL_SIZE ))
 
     if (( PROCESSED > 0 )); then
-        AVG_TIME=$(bc <<< "scale=2; $TOTAL_TIME / $PROCESSED")
-        REMAINING_FILES=$(( TOTAL_FILES - PROCESSED ))
-        ETA_SECONDS=$(bc <<< "$AVG_TIME * $REMAINING_FILES")
+        AVG_TIME=$(bc <<< "scale=2; $TOTAL_TIME / $PROCESSED_SIZE")
+        REMAINING_SIZE=$(( TOTAL_SIZE - PROCESSED_SIZE ))
+        ETA_SECONDS=$(bc <<< "$AVG_TIME * $REMAINING_SIZE")
         ETA_SECONDS=$(printf "%.0f" "$ETA_SECONDS")  # Round to nearest int
 
         HOURS=$((ETA_SECONDS / 3600))
@@ -137,9 +143,14 @@ transcode_to_wav() {
             echo "Audio transcoded."
         fi
 
+        FILE_SIZE=$(stat --format="%s" "$INPUT_VIDEO")
+
         if [[ "$PREPROCESSED" == "true" ]]; then
+            TOTAL_SIZE=$((TOTAL_SIZE - FILE_SIZE))
+
             ((TOTAL_FILES--))
         else
+            PROCESSED_SIZE=$((PROCESSED_SIZE + FILE_SIZE))
             END_TIME=$(date +%s)
             TIME_TAKEN=$((END_TIME - START_TIME))
             TOTAL_TIME=$((TOTAL_TIME + TIME_TAKEN))
@@ -178,9 +189,14 @@ generate_proxies() {
             echo "Proxy Generated."
         fi
 
+        FILE_SIZE=$(stat --format="%s" "$INPUT_VIDEO")
+
         if [[ "$PREPROCESSED" == "true" ]]; then
+            TOTAL_SIZE=$((TOTAL_SIZE - FILE_SIZE))
+
             ((TOTAL_FILES--))
         else
+            PROCESSED_SIZE=$((PROCESSED_SIZE + FILE_SIZE))
             END_TIME=$(date +%s)
             TIME_TAKEN=$((END_TIME - START_TIME))
             TOTAL_TIME=$((TOTAL_TIME + TIME_TAKEN))
