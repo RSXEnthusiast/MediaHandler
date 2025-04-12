@@ -51,22 +51,4 @@ This project converts audio from AAC to WAV (required for editing with Davinci R
 
 ## Planned Features
 **If there's something you'd like implemented that isn't listed here please suggest it or make a PR**
-* Better ETA based on file size instead of file count
-* Replace Hard-Coded things with parameters
-   * Folder to Scan
-      * --folder
-      * -f
-      * eg `-f "~/videos/youtube"`
-   * Proxy Output Resolution
-      * --proxyResolution
-      * -p
-      * eg `-p 720`
-   * Enable/Disable Proxy generation
-      * --generateProxies
-      * -g
-      * eg `-g true`
-   * Exclude file paths matching regex
-      * --excludeMatching
-      * -e
-      * eg `-e "*/360 X4/Raw/*"`
-* Add examples of usage with parameters, including a runner script.
+* There are no currently planned features.

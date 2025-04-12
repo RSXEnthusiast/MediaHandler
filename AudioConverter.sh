@@ -66,9 +66,6 @@ ZENITY_PID=$!
 echo "Finding all mp4 files in $TARGET_DIR."
 mapfile -d '' MEDIA_FILES < <(find "$TARGET_DIR" -type f -iname "*.mp4" -print0)
 
-# TODO: FIX THIS | SEE README
-echo "WARNING: Remaining Time is based on the average time taken for each video file and therefore won't be terribly accurate unless videos are a consistent length and format."
-
 reset_progress() {
     TOTAL_FILES=${#MEDIA_FILES[@]}
     TOTAL_SIZE=0
