@@ -7,14 +7,15 @@ if ! command -v zenity &> /dev/null; then
     exit
 fi
 
+RESOLUTION=540
 CURRENT_STAGE=0
 NUM_STAGES=0
 STAGE="Discovering MP4 Files..."
+TASK_LIST=""
 
 # Default values
 TARGET_DIR=""
-DO_WAV=false
-DO_PROXIES=false
+TASK_ORDER=()
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -23,15 +24,21 @@ while [[ $# -gt 0 ]]; do
             TARGET_DIR="$2"
             shift 2
             ;;
-        -w|--wav)
-            DO_WAV=true
-            ((NUM_STAGES))
+        -a|--audio)
+            TASK_ORDER+=("audio")
+            ((NUM_STAGES++))
+            TASK_LIST="$TASK_LIST\nAudio Transcoding"
             shift
             ;;
         -p|--proxies)
-            DO_PROXIES=true
-            ((NUM_STAGES))
+            TASK_ORDER+=("proxies")
+            ((NUM_STAGES++))
+            TASK_LIST="$TASK_LIST\nProxy Generation"
             shift
+            ;;
+        -r|--proxy_resolution)
+            RESOLUTION="$2"
+            shift 2
             ;;
         *)
             echo "Unknown argument: $1"
@@ -53,7 +60,7 @@ mkfifo "$PIPE"
 exec 3<> "$PIPE"
 rm "$PIPE"
 
-( zenity --progress --title="MediaHandler | Processing Media" --text="$TARGET_DIR\n\nStage $CURRENT_STAGE of $NUM_STAGES: $STAGE" --percentage=0 --cancel-label="Stop" --width=800 <&3 ) &
+( zenity --progress --title="MediaHandler | Processing Media" --text="$TARGET_DIR\n\nTask List:$TASK_LIST\n\n$CURRENT_STAGE of $NUM_STAGES: $STAGE" --percentage=0 --cancel-label="Stop" --width=800 <&3 ) &
 ZENITY_PID=$!
 
 echo "Finding all mp4 files in $TARGET_DIR."
@@ -90,9 +97,17 @@ update_progress() {
         ETA="Calculating..."
     fi
 
-    NOTIFICATION_STRING="$CURRENT_DIR\n\nStage $STAGE of $NUM_STAGES: $STAGE\n\nProcessing $INPUT_VIDEO\n\nProcessed $PROCESSED of $TOTAL_FILES files (Remaining: $ETA)"
+    NOTIFICATION_STRING="$TARGET_DIR\n\nTask List:$TASK_LIST\n\nStage $CURRENT_STAGE of $NUM_STAGES: $STAGE\n\nProcessing $INPUT_VIDEO\n\nProcessed $PROCESSED of $TOTAL_FILES files (Remaining: $ETA)"
     echo "# $NOTIFICATION_STRING" >&3
     echo "$PERCENT" >&3
+}
+
+check_zenity() {
+    if ! kill -0 "$ZENITY_PID" 2>/dev/null; then
+        echo "Process cancelled. Exiting."
+        exec 3>&-
+        exit 0
+    fi
 }
 
 transcode_to_wav() {
@@ -132,11 +147,7 @@ transcode_to_wav() {
             ((PROCESSED++))
         fi
 
-        if ! kill -0 "$ZENITY_PID" 2>/dev/null; then
-            echo "Process cancelled during audio transcoding of file $INPUT_VIDEO. Exiting."
-            exec 3>&-
-            exit 0
-        fi
+        check_zenity
     done
 }
 
@@ -159,9 +170,8 @@ generate_proxies() {
             echo "Proxy already exists, skipping generation."
         else
             echo "Creating Proxy Media"
-            RESOLUTION="720"
             if [[ "$INPUT_VIDEO" == *"/360 X4/"* ]]; then
-                RESOLUTION="1080"
+                RESOLUTION=$((RESOLUTION * 2))
             fi
             ffmpeg -v quiet -stats -y -i "$INPUT_VIDEO" -c:v dnxhd -profile:v dnxhr_lb -vf scale=-1:"$RESOLUTION" -c:a copy -map_metadata 0 -copytb 1 "$PROXY_DIR/$NEW_FILENAME"
             PREPROCESSED="false"
@@ -178,29 +188,26 @@ generate_proxies() {
             ((PROCESSED++))
         fi
 
-        if ! kill -0 "$ZENITY_PID" 2>/dev/null; then
-            echo "Process cancelled during proxy generation for file $INPUT_VIDEO. Exiting."
-            exec 3>&-
-            exit 0
-        fi
+        check_zenity
     done
 }
 
-reset_progress
+for TASK in "${TASK_ORDER[@]}"; do
+    check_zenity
+    reset_progress
+    ((CURRENT_STAGE++))
 
-STAGE="Transcoding AAC Audio to WAV"
-((CURRENT_STAGE++))
-
-if [[ "$DO_WAV" == true ]]; then
-    transcode_to_wav
-fi
-
-STAGE="Generating Proxies"
-((CURRENT_STAGE++))
-
-if [[ "$DO_PROXIES" == true ]]; then
-    generate_proxies
-fi
+    case "$TASK" in
+        audio)
+            STAGE="Transcoding AAC Audio to WAV"
+            transcode_to_wav
+            ;;
+        proxies)
+            STAGE="Generating Proxies"
+            generate_proxies
+            ;;
+    esac
+done
 
 echo "All files processed! 🎉"
 echo "# All MP4 files have been processed! 🎉" >&3

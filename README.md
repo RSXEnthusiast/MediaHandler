@@ -37,14 +37,18 @@ If I have spare time I might consider making a more universal version, but this 
     * `sudo apt install zenity` for ubuntu based distros
     * This is for a prettier notification window. It could be stripped from the tool pretty easily if desired.
 
-## Usage
-* Clone into your directory with your media, then run the script. It will recursively process all of the media in the same folder as the MediaHandler folder, `../*` from the script, aka the folder above where the script is located.
-* Eg.
-   * I have a project directory called PROJECT containing four folders, each containing media for a specific camera angle. PROJECT is in a foldernamed VIDEO_PROJECTS
-   * I'd clone into the VIDEO_PROJECTS folder, so VIDEO_PROJECTS would contain the folders PROJECT and MediaHandler.
-   * The script would recursively scan for all media in the VIDEO_PROJECTS folder.
-   * If you only wanted to convert media in the PROJECT folder, instead of all media in the VIDEO_PROJECTS folder, you'd need to clone into the PROJECT folder instead.
-* The above example might change with the addition of parameters, as outlined below.
+## Parameters
+* `-d` `--directory` The directory to recursively scan for files.
+    * Follow this with the directory you'd like to process (see examples)
+    * Will scan all files in this directory and any sub directories.
+* `-a` `--audio` Transcodes audio from AAC to WAV for all of the found files.
+* `-p` `--proxies` Generates proxies for all of the found files.
+* `-r` `--proxy_resolution` DEFAULT 540
+    * Sets the horizontal resolution to scale the proxies to.
+    * Vertical resolution is automatically scaled to keep aspect ratio
+
+## Examples
+* These can be found in the Example_ files
 
 ## Planned Features
 **If there's something you'd like implemented that isn't listed here please suggest it or make a PR**
