@@ -34,12 +34,12 @@ This project converts audio from AAC to WAV (required for editing with Davinci R
     * This is for a prettier notification window. It could be stripped from the tool pretty easily if desired.
 
 ## Parameters
-* `-d` `--directory` The directory to recursively scan for files.
+* `-d` `--directory` REQUIRED - The directory to recursively scan for files.
     * Follow this with the directory you'd like to process (see examples)
     * Will scan all files in this directory and any sub directories.
-* `-a` `--audio` Transcodes audio from AAC to WAV for all of the found files.
-* `-p` `--proxies` Generates proxies for all of the found files.
-* `-r` `--proxy_resolution` DEFAULT 540
+* `-a` `--audio` OPTIONAL - Transcodes audio from AAC to WAV for all of the found files.
+* `-p` `--proxies` OPTIONAL - Generates proxies for all of the found files.
+* `-r` `--proxy_resolution` OPTIONAL - Defaults to 540
     * Sets the horizontal resolution to scale the proxies to.
     * Vertical resolution is automatically scaled to keep aspect ratio
 
