@@ -45,6 +45,7 @@ This project converts audio from AAC to WAV (required for editing with Davinci R
 * NOTE: Proxy Generation and Audio Transcoding WILL be handled in the order they're passed in.
     * E.g. if you pass in `-a -p` audio transcoding will happen for all files, then proxy generation will happen for all files.
     * E.g. if you pass in `-p -a` proxy generation will happen for all files, then audio trandcoding will happen for all files.
+    * Generally you probably want to do Audio first, as if you do proxies first, they will have AAC audio.
 
 ## Examples
 * These can be found in the Example folder
