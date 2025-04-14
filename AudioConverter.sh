@@ -60,7 +60,7 @@ mkfifo "$PIPE"
 exec 3<> "$PIPE"
 rm "$PIPE"
 
-( zenity --progress --title="MediaHandler | Processing Media" --text="$TARGET_DIR\n\nTask List:$TASK_LIST\n\nStage $CURRENT_STAGE of $NUM_STAGES: $STAGE" --percentage=0 --cancel-label="Stop" --width=800 <&3 ) &
+( zenity --progress --title="MediaHandler | Processing Media" --text="$TARGET_DIR\n\nTask List:$TASK_LIST\n\nTask $CURRENT_STAGE of $NUM_STAGES: $STAGE" --percentage=0 --cancel-label="Stop" --width=800 <&3 ) &
 ZENITY_PID=$!
 
 echo "Finding all mp4 files in $TARGET_DIR."
@@ -82,10 +82,16 @@ update_progress() {
     PERCENT=$(( (PROCESSED_SIZE * 100) / TOTAL_SIZE ))
 
     if (( PROCESSED > 0 )); then
-        AVG_TIME=$(bc <<< "scale=2; $TOTAL_TIME / $PROCESSED_SIZE")
+        # Calculate bytes per second
+        BYTES_PER_SECOND=$(bc -l <<< "$PROCESSED_SIZE / $TOTAL_TIME")
         REMAINING_SIZE=$(( TOTAL_SIZE - PROCESSED_SIZE ))
-        ETA_SECONDS=$(bc <<< "$AVG_TIME * $REMAINING_SIZE")
-        ETA_SECONDS=$(printf "%.0f" "$ETA_SECONDS")  # Round to nearest int
+
+        if (( $(echo "$BYTES_PER_SECOND > 0" | bc -l) )); then
+            ETA_SECONDS=$(bc -l <<< "$REMAINING_SIZE / $BYTES_PER_SECOND")
+            ETA_SECONDS=$(printf "%.0f" "$ETA_SECONDS")  # Round to nearest int
+        else
+            ETA_SECONDS=0
+        fi
 
         HOURS=$((ETA_SECONDS / 3600))
         MINUTES=$(((ETA_SECONDS % 3600) / 60))
@@ -100,7 +106,7 @@ update_progress() {
         ETA="Calculating..."
     fi
 
-    NOTIFICATION_STRING="$TARGET_DIR\n\nTask List:$TASK_LIST\n\nStage $CURRENT_STAGE of $NUM_STAGES: $STAGE\n\nProcessing $INPUT_VIDEO\n\nProcessed $PROCESSED of $TOTAL_FILES files (Remaining for this task: $ETA)"
+    NOTIFICATION_STRING="$TARGET_DIR\n\nTask List:$TASK_LIST\n\nTask $CURRENT_STAGE of $NUM_STAGES: $STAGE\n\nProcessing $INPUT_VIDEO\n\nProcessed $PROCESSED of $TOTAL_FILES files (Remaining for this task: $ETA)"
     echo "# $NOTIFICATION_STRING" >&3
     echo "$PERCENT" >&3
 }
