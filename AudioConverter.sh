@@ -100,7 +100,7 @@ update_progress() {
         ETA="Calculating..."
     fi
 
-    NOTIFICATION_STRING="$TARGET_DIR\n\nTask List:$TASK_LIST\n\nStage $CURRENT_STAGE of $NUM_STAGES: $STAGE\n\nProcessing $INPUT_VIDEO\n\nProcessed $PROCESSED of $TOTAL_FILES files (Remaining: $ETA)"
+    NOTIFICATION_STRING="$TARGET_DIR\n\nTask List:$TASK_LIST\n\nStage $CURRENT_STAGE of $NUM_STAGES: $STAGE\n\nProcessing $INPUT_VIDEO\n\nProcessed $PROCESSED of $TOTAL_FILES files (Remaining for this task: $ETA)"
     echo "# $NOTIFICATION_STRING" >&3
     echo "$PERCENT" >&3
 }
