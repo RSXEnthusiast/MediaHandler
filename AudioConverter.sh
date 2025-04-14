@@ -60,7 +60,7 @@ mkfifo "$PIPE"
 exec 3<> "$PIPE"
 rm "$PIPE"
 
-( zenity --progress --title="MediaHandler | Processing Media" --text="$TARGET_DIR\n\nTask List:$TASK_LIST\n\n$CURRENT_STAGE of $NUM_STAGES: $STAGE" --percentage=0 --cancel-label="Stop" --width=800 <&3 ) &
+( zenity --progress --title="MediaHandler | Processing Media" --text="$TARGET_DIR\n\nTask List:$TASK_LIST\n\nStage $CURRENT_STAGE of $NUM_STAGES: $STAGE" --percentage=0 --cancel-label="Stop" --width=800 <&3 ) &
 ZENITY_PID=$!
 
 echo "Finding all mp4 files in $TARGET_DIR."
