@@ -23,6 +23,8 @@ This project converts audio from AAC to WAV (required for editing with Davinci R
 * Run automatically when detecting new media in a folder
    * You could set this sort of automatic folder scanning job up, but I would not suggest it and haven't tested it.
    * It's intended to be run manually after dumping footage from cameras and organizing it into directories.
+* Transcode the MP4 video to something that can be edited with Davinci Resolve Free.
+   * You'd just need to edit the ffmpeg command, but considering I have studio, I chose to save the time and skip transcoding the video.
 * So much other stuff that I haven't listed here
    * Walk your dog
    * Edit the video for you
