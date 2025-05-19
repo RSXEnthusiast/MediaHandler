@@ -7,7 +7,7 @@ This project converts audio from AAC to WAV (required for editing with Davinci R
 ## What this does
 * Recursively searches for mp4 files in a given directory, preserving the directory structure as it modifies the files
     * No need to put all of your input files into one directory for handling, keep your media organized into folders as you desire.
-* Replaces AAC audio in MP4 (H.264) files with WAV
+* Replaces AAC audio in MP4 files with WAV
 * Generates Proxies for media and places them in ./Proxy
 * If cancelled, finishes current media before exiting.
     * It is not suggested to force quit the script, it could result in lost media.
@@ -29,7 +29,9 @@ This project converts audio from AAC to WAV (required for editing with Davinci R
 
 ## Dependencies
 * ffmpeg
-   * Do I need to explain this?
+   * Video Transcoding Tools
+* ffprobe
+   * Video stat checking tools
 * Zenity
     * This is for a prettier notification window. It could be stripped from the tool pretty easily if desired.
 
