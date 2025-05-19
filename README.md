@@ -9,6 +9,7 @@ This project converts audio from AAC to WAV (required for editing with Davinci R
     * No need to put all of your input files into one directory for handling, keep your media organized into folders as you desire.
 * Replaces AAC audio in MP4 files with WAV
 * Generates Proxies for media and places them in ./Proxy
+* Generates a semi-accurate progress bar based off of file size.
 * If cancelled, finishes current media before exiting.
     * It is not suggested to force quit the script, it could result in lost media.
 
