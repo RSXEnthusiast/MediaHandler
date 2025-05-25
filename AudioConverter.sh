@@ -119,7 +119,7 @@ check_zenity() {
     fi
 }
 
-transcode_to_wav() {
+transcode_to_wav_or_extract_flac() {
     for INPUT_VIDEO in "${MEDIA_FILES[@]}"; do
         START_TIME=$(date +%s)
 
@@ -129,41 +129,56 @@ transcode_to_wav() {
         update_progress
 
         PREPROCESSED="true"
+
+        # Check if file has audio
         if ! ffprobe -i "$INPUT_VIDEO" -show_streams -select_streams a -loglevel error | grep -q "audio"; then
             echo "File has no audio. Skipping audio transcoding."
-        elif ffprobe -i "$INPUT_VIDEO" -show_streams -select_streams a -loglevel error | grep -q "pcm_s16le"; then
-            echo "File already has WAV audio. Skipping audio transcoding."
         else
-            echo "Converting audio to WAV"
-            TEMP_FILE="${INPUT_VIDEO%.*}_temp.mp4"
+            # Get the first audio codec name
+            AUDIO_CODEC=$(ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of default=nokey=1:noprint_wrappers=1 "$INPUT_VIDEO")
 
-            ffmpeg -v quiet -stats -y -i "$INPUT_VIDEO" -map 0:v -map 0:a -c:v copy -c:a pcm_s16le -metadata:s:a:0 language=eng "$TEMP_FILE"
+            if [[ "$AUDIO_CODEC" == "pcm_s16le" || "$AUDIO_CODEC" == "pcm_s24le" ]]; then
+                echo "File already has WAV audio. Skipping audio transcoding."
+            elif [[ "$AUDIO_CODEC" == "flac" ]]; then
+                OUTPUT_FLAC="${INPUT_VIDEO%.*}.flac"
+                if [[ -f "$OUTPUT_FLAC" ]]; then
+                    echo "FLAC audio file already exists ($OUTPUT_FLAC). Skipping extraction."
+                else
+                    echo "Extracting FLAC audio to $OUTPUT_FLAC"
+                    ffmpeg -v quiet -stats -y -i "$INPUT_VIDEO" -map 0:a -c:a copy "$OUTPUT_FLAC"
+                    echo "FLAC extraction complete."
+                fi
+            else
+                echo "Converting audio to WAV"
+                TEMP_FILE="${INPUT_VIDEO%.*}_temp.mp4"
 
-            echo "Overwriting the original file."
-            mv "$TEMP_FILE" "$INPUT_VIDEO"
+                ffmpeg -v quiet -stats -y -i "$INPUT_VIDEO" -map 0:v -map 0:a -c:v copy -c:a pcm_s16le -metadata:s:a:0 language=eng "$TEMP_FILE"
 
-            PREPROCESSED="false"
-            echo "Audio transcoded."
+                echo "Overwriting the original file."
+                mv "$TEMP_FILE" "$INPUT_VIDEO"
+
+                PREPROCESSED="false"
+                echo "Audio transcoded."
+            fi
         fi
 
         FILE_SIZE=$(stat --format="%s" "$INPUT_VIDEO")
 
         if [[ "$PREPROCESSED" == "true" ]]; then
             TOTAL_SIZE=$((TOTAL_SIZE - FILE_SIZE))
-
             ((TOTAL_FILES--))
         else
             PROCESSED_SIZE=$((PROCESSED_SIZE + FILE_SIZE))
             END_TIME=$(date +%s)
             TIME_TAKEN=$((END_TIME - START_TIME))
             TOTAL_TIME=$((TOTAL_TIME + TIME_TAKEN))
-
             ((PROCESSED++))
         fi
 
         check_zenity
     done
 }
+
 
 generate_proxies() {
     for INPUT_VIDEO in "${MEDIA_FILES[@]}"; do
@@ -219,7 +234,7 @@ for TASK in "${TASK_ORDER[@]}"; do
     case "$TASK" in
         audio)
             STAGE="Transcoding AAC Audio to WAV"
-            transcode_to_wav
+            transcode_to_wav_or_extract_flac
             ;;
         proxies)
             STAGE="Generating Proxies"
