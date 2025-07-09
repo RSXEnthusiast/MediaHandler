@@ -147,12 +147,13 @@ transcode_to_wav_or_extract_flac() {
                     echo "Extracting FLAC audio to $OUTPUT_FLAC"
                     ffmpeg -v quiet -stats -y -i "$INPUT_VIDEO" -map 0:a -c:a copy "$OUTPUT_FLAC"
                     echo "FLAC extraction complete."
+                    PREPROCESSED="false"
                 fi
             else
                 echo "Converting audio to WAV"
                 TEMP_FILE="${INPUT_VIDEO%.*}_temp.mp4"
 
-                ffmpeg -v quiet -stats -y -i "$INPUT_VIDEO" -map 0:v -map 0:a -c:v copy -c:a pcm_s16le -metadata:s:a:0 language=eng "$TEMP_FILE"
+                ffmpeg -i "$INPUT_VIDEO" -map 0:v -map 0:a -c:v copy -c:a pcm_s16le -metadata:s:a:0 language=eng "$TEMP_FILE"
 
                 echo "Overwriting the original file."
                 mv "$TEMP_FILE" "$INPUT_VIDEO"
