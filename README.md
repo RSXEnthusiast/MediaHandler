@@ -1,10 +1,21 @@
 # MediaHandler
 ## Overview
-This project converts audio from AAC to WAV (required for editing with Davinci Resolve Studio on Linux) and generates DNXHR_LB proxies for all MP4 files in a directory, scanned recursively.
+### AudioHandler
+Based on arguments, this project converts audio from AAC to WAV (required for editing with Davinci Resolve Studio on Linux) and generates DNXHR_LB proxies for all MP4 files in a directory, scanned recursively.
+### GoproRename
+This script renames gopro files to be named in chronological order. Why doesn't the GoPro do this by default?
+### NightlapseCreator
+This script pulls all JPG files out of folders, renames them for ffmpeg, and creates a lossless timelapse of the images. I use the to create a video nightlapse file from a series of photos taken in a GoPro's Nightlapse mode, hence the name.
+### MakeNewFolders
+This script makes new folders in the format I desire for weekly video releases, so I don't have to make them myself.
 
-**WARNING: THIS IS ALWAYS A WIP, AND DESIGNED FOR MY PERSONAL USE AND WORKFLOW. IF YOU DECIDE TO USE IT, CREATE BACKUPS OF YOUR MEDIA, THIS TOOL COULD BE DESTRUCTIVE.**
+**WARNING: ALL OF THESE SCRIPTS ARE ALWAYS A WIP, AND DESIGNED FOR MY PERSONAL USE AND WORKFLOW. IF YOU DECIDE TO USE THEM, CREATE BACKUPS OF YOUR MEDIA, THESE TOOLS COULD BE DESTRUCTIVE.**
 
-## What this does
+## AudioHandler
+### Usage
+* See the Examples folder for examples.
+
+### What this does
 * Recursively searches for mp4 files in a given directory, preserving the directory structure as it modifies the files
     * No need to put all of your input files into one directory for handling, keep your media organized into folders as you desire.
 * Replaces AAC audio in MP4 files with WAV
@@ -13,7 +24,7 @@ This project converts audio from AAC to WAV (required for editing with Davinci R
 * If cancelled, finishes current media before exiting.
     * It is not suggested to force quit the script, it could result in lost media.
 
-## What this doesn't do
+### What this doesn't do
 * Handle files that aren't mp4
    * Could probably easily be modified to handle other media types, but this is all I need, so it's all the tool searches for.
 * Preserve the original media
@@ -30,7 +41,7 @@ This project converts audio from AAC to WAV (required for editing with Davinci R
    * Edit the video for you
    * Repair your personal relationships
 
-## Dependencies
+### Dependencies
 * ffmpeg
    * Video Transcoding Tools
 * ffprobe
@@ -38,7 +49,7 @@ This project converts audio from AAC to WAV (required for editing with Davinci R
 * Zenity
     * This is for a prettier notification window. It could be stripped from the tool pretty easily if desired.
 
-## Parameters
+### Parameters
 * `-d` `--directory` REQUIRED - The directory to recursively scan for files.
     * Follow this with the directory you'd like to process (see examples)
     * Will scan all files in this directory and any sub directories.
@@ -52,9 +63,30 @@ This project converts audio from AAC to WAV (required for editing with Davinci R
     * E.g. if you pass in `-p -a` proxy generation will happen for all files, then audio trandcoding will happen for all files.
     * Generally you probably want to do Audio first, as if you do proxies first, they will have AAC audio.
 
-## Examples
+### Examples
 * These can be found in the Example folder
 
 ## Planned Features
 **If there's something you'd like implemented that isn't listed here please suggest it or make a PR**
 * There are no currently planned features.
+
+## GoProRename
+### Usage
+* Copy the file into the folder containing the GoPro files, then run it.
+
+### What This Does
+* Renames GoPro files to be in chronological order when sorted alphabetically.
+
+## NightlapseCreator
+### Usage
+* Copy the file into the folder with the GoPro folders or JPG files, then run it.
+
+### What This Does
+* Creates a video from JPG files.
+
+## MakeNewFolders
+### Usage
+* Copy the File into the directory where you want the folders, then run it.
+
+### What This Does
+* Creates new folders containing the date of each friday, containing a Raw Footage folder as well as subfolders for each camera.
