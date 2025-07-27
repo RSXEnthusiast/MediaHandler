@@ -66,10 +66,6 @@ This script makes new folders in the format I desire for weekly video releases, 
 ### Examples
 * These can be found in the Example folder
 
-## Planned Features
-**If there's something you'd like implemented that isn't listed here please suggest it or make a PR**
-* There are no currently planned features.
-
 ## GoProRename
 ### Usage
 * Copy the file into the folder containing the GoPro files, then run it.
@@ -90,3 +86,7 @@ This script makes new folders in the format I desire for weekly video releases, 
 
 ### What This Does
 * Creates new folders containing the date of each friday, containing a Raw Footage folder as well as subfolders for each camera.
+
+## Planned Features
+**If there's something you'd like implemented that isn't listed here please suggest it or make a PR**
+* There are no currently planned features. I might improve/change it as I need.
